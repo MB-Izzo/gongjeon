@@ -2,7 +2,7 @@ use askama::Template;
 
 #[derive(Template)]
 #[template(path = "hello.html", escape = "none")]
-pub struct HelloTemplate<'a> {
+pub struct PostTemplate<'a> {
     pub content: &'a str,
 }
 

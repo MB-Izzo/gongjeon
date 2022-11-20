@@ -67,7 +67,7 @@ fn rebuild_site(content_dir: &str, output_dir: &str) -> Result<(), anyhow::Error
         let mut body = String::new();
         pulldown_cmark::html::push_html(&mut body, parser); // put md to html in body
         
-        let post_template = templates::HelloTemplate { content: body.as_str()};
+        let post_template = templates::PostTemplate { content: body.as_str()};
         html.push_str(post_template.render().unwrap().as_str());
         //  html.push_str(templates::render_body(&body).as_str()); // add body 
         // html.push_str(templates::FOOTER); // add footer 
