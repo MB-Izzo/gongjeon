@@ -3,6 +3,7 @@ use std::{thread, time::Duration, fs, path::Path, net::SocketAddr};
 use anyhow::Ok;
 use askama::Template;
 use axum::{Router, service, http::StatusCode};
+use templates::Post;
 use tower_http::services::ServeDir;
 
 mod templates;
@@ -69,8 +70,6 @@ fn rebuild_site(content_dir: &str, output_dir: &str) -> Result<(), anyhow::Error
         
         let post_template = templates::PostTemplate { content: body.as_str()};
         html.push_str(post_template.render().unwrap().as_str());
-        //  html.push_str(templates::render_body(&body).as_str()); // add body 
-        // html.push_str(templates::FOOTER); // add footer 
         
         // create the path for html file from the original md file
         let html_file = file
@@ -91,22 +90,21 @@ fn rebuild_site(content_dir: &str, output_dir: &str) -> Result<(), anyhow::Error
 
 fn write_index(files: Vec<String>, output_dir: &str) -> Result<(), anyhow::Error> {
     // Add header
+    // TODO: remove
     let mut html =  templates::HEADER.to_owned();
-    // transform file names into a href with #link and title parsed from filename 
-    let body = files
-        .into_iter()
-        .map(|file| {
-            let file = file.trim_start_matches(output_dir);
-            let title = file.trim_start_matches("/").trim_end_matches(".html");
-            format!(r#"<a href="{}">{}</a>"#, file, title)
-        })
-        .collect::<Vec<String>>()
-        .join("<br />\n");
 
-    html.push_str(templates::render_body(&body).as_str());
-    html.push_str(templates::FOOTER);
+    let mut posts: Vec<Post> = Vec::with_capacity(files.len());
+    for file in &files {
+        let file_name = file.trim_start_matches(output_dir);
+        let title = file_name.trim_start_matches("/").trim_end_matches(".html");
+        posts.push(Post { name: title, url: file_name })
+    } 
+
+    let index_template = templates::IndexTemplate { posts };
+    html.push_str(index_template.render().unwrap().as_str());
     
     let index_path = Path::new(&output_dir).join("index.html");
     fs::write(index_path, html)?;
     Ok(())
 }
+

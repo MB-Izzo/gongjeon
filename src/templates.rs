@@ -1,9 +1,20 @@
 use askama::Template;
 
 #[derive(Template)]
-#[template(path = "hello.html", escape = "none")]
+#[template(path = "post_template.html", escape = "none")]
 pub struct PostTemplate<'a> {
     pub content: &'a str,
+}
+
+#[derive(Template)]
+#[template(path = "index_template.html", escape = "none")]
+pub struct IndexTemplate<'a> {
+    pub posts: Vec<Post<'a>>,
+}
+
+pub struct Post<'a> {
+    pub name: &'a str,
+    pub url: &'a str,
 }
 
 pub const HEADER: &str = r#"<!DOCTYPE html>
@@ -13,25 +24,6 @@ pub const HEADER: &str = r#"<!DOCTYPE html>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
-
-"#;
-
-pub fn render_body(body: &str) -> String {
-    format!(
-        r#"  <body>
-    <nav>
-        <a href="/">Home</a>
-    </nav>
-    <br />
-    {}
-  </body>"#,
-        body
-    )
-}
-
-pub const FOOTER: &str = r#"
-
-</html>
 
 "#;
 
