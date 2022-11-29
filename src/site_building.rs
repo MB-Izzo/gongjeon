@@ -4,11 +4,8 @@ use std::{fs, path::Path};
 
 pub fn rebuild_site(config: &Config) -> Result<(), anyhow::Error> {
     let _ = fs::remove_dir_all(config.output_dir.as_str());
-
     let markdown_files: Vec<String> = get_markdown_files_from(config.content_dir.as_str());
-
     let html_files: Vec<String> = convert_md_to_html(markdown_files, config.content_dir.as_str(), config.output_dir.as_str());
-
     write_index(html_files, config.output_dir.as_str())?;
     Ok(())
 }
