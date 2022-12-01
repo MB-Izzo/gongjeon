@@ -14,7 +14,7 @@
     <main class="container">
         <nav>
             <ul>
-                <li><strong>{{ username }}</strong></li>
+                <li><strong>Mathieu Bouchonnet</strong></li>
             </ul>
             <ul>
                 <li><a href="/">Posts</a></li>
@@ -23,11 +23,13 @@
                 <li><a href="/">Youtube</a></li>
             </ul>
         </nav>
-        <p>{{ intro }}</p>
+        <p>Hi, I'm Mathieu, a programmer from France. I talk about everything here. Yeah I know, not a really unique intro.</p>
         <hr />
-        {% for post in posts %}
-        <a href="{{ post.url }}">{{ post.title }} - <i>{{ post.date }}</i></a><br />
-        {% endfor %}
+        
+        <a href="/my-first-post.html">My first blog post - <i>12/1/2022</i></a><br />
+        
+        <a href="/rust-tutorial.html">Rust tutorial - <i>12/01/2022</i></a><br />
+        
     </main>
 </body>
 

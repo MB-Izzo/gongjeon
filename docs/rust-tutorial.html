@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/tokyo-night-dark.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
 </head>
@@ -14,7 +14,7 @@
     <main class="container">
         <nav>
             <ul>
-                <li><strong>{{ username }}</strong></li>
+                <li><strong>Mathieu Bouchonnet</strong></li>
             </ul>
             <ul>
                 <li><a href="/">Posts</a></li>
@@ -23,11 +23,9 @@
                 <li><a href="/">Youtube</a></li>
             </ul>
         </nav>
-        <p>{{ intro }}</p>
-        <hr />
-        {% for post in posts %}
-        <a href="{{ post.url }}">{{ post.title }} - <i>{{ post.date }}</i></a><br />
-        {% endfor %}
+        <h1>Rust tutorial</h1>
+<p>hello world</p>
+
     </main>
 </body>
 
@@ -77,5 +75,4 @@
         list-style: none;
     }
 </style>
-
 <script>hljs.highlightAll();</script>

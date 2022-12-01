@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/tokyo-night-dark.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
 </head>
@@ -13,12 +14,13 @@
     <main class="container">
         <nav>
             <ul>
-                <li><strong>mbouchonnet</strong></li>
+                <li><strong>{{ username }}</strong></li>
             </ul>
             <ul>
-                <li><a href="/">Home</a></li>
-                <!-- <li><a href="/">Posts</a></li> -->
-                <!-- <li><a href="/">Resume</a></li> -->
+                <li><a href="/">Posts</a></li>
+                <li><a href="/">Twitter</a></li>
+                <li><a href="/">Twitch</a></li>
+                <li><a href="/">Youtube</a></li>
             </ul>
         </nav>
         {{ content }}
@@ -27,4 +29,48 @@
 
 </html>
 
+<style>
+    /* Pink Light scheme (Default) */
+    /* Can be forced with data-theme="light" */
+    [data-theme="light"],
+    :root:not([data-theme="dark"]) {
+        --primary: #d81b60;
+        --primary-hover: #c2185b;
+        --primary-focus: rgba(216, 27, 96, 0.125);
+        --primary-inverse: #FFF;
+    }
+
+    /* Pink Dark scheme (Auto) */
+    /* Automatically enabled if user has Dark mode enabled */
+    @media only screen and (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+            --primary: #d81b60;
+            --primary-hover: #e91e63;
+            --primary-focus: rgba(216, 27, 96, 0.25);
+            --primary-inverse: #FFF;
+        }
+    }
+
+    /* Pink Dark scheme (Forced) */
+    /* Enabled if forced with data-theme="dark" */
+    [data-theme="dark"] {
+
+        --primary: #d81b60;
+        --primary-hover: #e91e63;
+        --primary-focus: rgba(216, 27, 96, 0.25);
+        --primary-inverse: #FFF;
+    }
+
+    /* Pink (Common styles) */
+    :root {
+        --form-element-active-border-color: var(--primary);
+        --form-element-focus-color: var(--primary-focus);
+        --switch-color: var(--primary-inverse);
+        --switch-checked-background-color: var(--primary);
+    }
+
+    ul li {
+        list-style: none;
+    }
+</style>
 <script>hljs.highlightAll();</script>

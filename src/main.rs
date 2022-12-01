@@ -1,58 +1,85 @@
-use std::{thread, time::Duration, net::SocketAddr, fs::{self, File}, env, io::Write};
 use anyhow::Ok;
-use axum::{Router, service, http::StatusCode};
-use inquire::Text;
+use axum::{http::StatusCode, service, Router};
+use clap::{clap_derive, Parser};
+use inquire::{Text, InquireError};
+use std::{
+    fs::{self, File},
+    io::Write,
+    net::SocketAddr,
+    thread,
+    time::Duration,
+};
 use tower_http::services::ServeDir;
 
 use gongjeon::config::Config;
 
+#[derive(clap_derive::Parser)]
+#[clap(version, about)]
+struct Opt {
+    #[clap(subcommand)]
+    cmd: Option<Cmd>,
+}
+
+#[derive(PartialEq, clap_derive::Subcommand)]
+enum Cmd {
+    Init,
+    Dev,
+}
+
 fn main() -> Result<(), anyhow::Error> {
-    let args: Vec<String> = env::args().collect();
-    match args.len() {
-        1 => println!("Need to specify arg run or init"),
-        2 => {
-            match &args[1][..] {
-                "init" => init_config(), // handle setup config
-                "run" => run_dev_server().unwrap(), // handle run dev server 
-                // if can find config, otherwise tell user to use init
-                _ => println!("Unrecognized command"),
-            }
-        },
-        _ => println!("too many args"),
+    let opt: Opt = Parser::parse();
+    match opt.cmd {
+        Some(Cmd::Init) => init_config(),
+        Some(Cmd::Dev) => run_dev_server().unwrap(), // if cant find conf tell user to init
+        None => println!("You need to use Init or Dev arg."),
     }
+
     Ok(())
 }
 
 pub fn init_config() {
-    let input_content_dir = Text::new("What is the name of content dir?")
-        .prompt();
+    let content_dir = ask("Content dir name", "content")
+        .expect("Error content dir name");
 
-    match &input_content_dir {
-        core::result::Result::Ok(status) => println!("Content dir '{}' was choosen.", status),
-        Err(_) => println!("error"),
-    }
+    let public_dir = ask("Content dir name", "public")
+        .expect("Error public dir name");
 
-    let input_public_dir = Text::new("What is the name of content dir?")
-        .prompt();
+    let username = ask("What is your username", "John Doe")
+        .expect("Error entering username");
 
-    match &input_public_dir {
-        core::result::Result::Ok(_) => println!("Content dir was choosen."),
-        Err(_) => println!("error"),
-    }
-    let config = Config { content_dir: input_content_dir.unwrap(), output_dir: input_public_dir.unwrap() };
-    let mut f = File::create("config.json").unwrap();
-    let a = serde_json::to_string(&config).unwrap();
-    f.write_all(a.as_bytes()).unwrap();
+    let intro = ask("What is your website about", "This is an intro...")
+        .expect("Error entering description");
+
+    let config = Config {
+        content_dir,
+        output_dir: public_dir,
+        username: username.to_string(),
+        intro,
+    };
+
+    let mut conf_file = File::create("config.json").unwrap();
+    let conf_string = serde_json::to_string(&config).unwrap();
+    conf_file.write_all(conf_string.as_bytes()).unwrap();
 
     println!("Successfull init! Run gong dev to run dev server.")
 }
 
 #[tokio::main]
 async fn run_dev_server() -> Result<(), anyhow::Error> {
-    let config = read_config_file().expect("Could not read config file"); 
 
-    let content_dir  = config.content_dir.clone();
+    fn read_config_file() -> Result<Config, anyhow::Error> {
+        let conf_text = fs::read_to_string("config.json").expect("Could not read file");
+        let config: Config = serde_json::from_str(&conf_text)?;
+        Ok(config)
+    }
+
+    let config = read_config_file().expect("Could not read config file");
+    
+    // because use for hotwatch (closure)
+    // may be a better way to avoid clone but I don't know how
+    let content_dir = config.content_dir.clone();
     let output_dir = config.output_dir.clone();
+
     gongjeon::rebuild_site(&config).expect("Rebuilding site");
     tokio::task::spawn_blocking(move || {
         println!("listening for changes: {}", config.content_dir);
@@ -68,7 +95,8 @@ async fn run_dev_server() -> Result<(), anyhow::Error> {
         }
     });
 
-    let app = Router::new().nest("/", 
+    let app = Router::new().nest(
+        "/",
         service::get(ServeDir::new(output_dir)).handle_error(|error: std::io::Error| {
             Ok::<_>((
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -86,8 +114,13 @@ async fn run_dev_server() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-fn read_config_file() -> Result<Config, anyhow::Error> {
-    let conf_text = fs::read_to_string("config.json").expect("Could not read file");
-    let config: Config = serde_json::from_str(&conf_text)?;
-    Ok(config)
+fn ask<'a>(question: &str, default_value: &'a str) -> Result<String, InquireError>{
+    let input_public_dir = Text::new(question)
+        .with_default(default_value)
+        .prompt();
+
+    match input_public_dir {
+        core::result::Result::Ok(status) => core::result::Result::Ok(status),
+        Err(e) => Err(e),
+    }
 }
